@@ -1,4 +1,3 @@
-from keyboard import key
 import pygame
 from config import img_player, WIDTH, HEIGHT
 from entities.base import Base
