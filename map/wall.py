@@ -1,26 +1,24 @@
-from pygame import *
-from config import block_img
+import pygame
+from config import TILE_SIZE
 
-class block:
-    def __init__(self, block_img, x, y, size):
+class FloorTile(pygame.sprite.Sprite):
+    def __init__(self, image_path, x, y, size=TILE_SIZE):
         super().__init__()
-        self.images = {k: transform.scale(image.load(v), (size, size)) for k, v in block_img.items()}
+        self.image = pygame.transform.scale(pygame.image.load(image_path).convert_alpha(), (size, size))
         self.rect = self.image.get_rect(topleft=(x, y))
 
-class Wall:
-    def __init__(self, image_path, x, y, size_x, size_y, is_breakble=False):
+class Wall(pygame.sprite.Sprite):
+    def __init__(self, image_path, x, y, size=TILE_SIZE, is_breakable=False):
         super().__init__()
-        self.image = transform.scale(image.load(image_path), (size_x, size_y))
+        self.image = pygame.transform.scale(pygame.image.load(image_path).convert_alpha(), (size, size))
         self.rect = self.image.get_rect(topleft=(x, y))
-        self.is_breakble = is_breakble
-    def add(self, image_path, x, y, size_x, size_y, is_breakble):
-        Walls.add(Wall(image_path, x, y, size_x, size_y, is_breakble))
+        self.is_breakable = is_breakable
 
-class Title:
-    def __init__(self, image_path, x, y, size_x, size_y, is_breakble=False):
+class Tile(pygame.sprite.Sprite):
+    def __init__(self, image_path, x, y, size=TILE_SIZE):
         super().__init__()
-        self.image = transform.scale(image.load(image_path), (size_x, size_y))
+        self.image = pygame.transform.scale(pygame.image.load(image_path).convert_alpha(), (size, size))
         self.rect = self.image.get_rect(topleft=(x, y))
-        self.layer = 1
 
-Walls = block.Group()
+floor_group = pygame.sprite.Group()
+wall_group = pygame.sprite.Group()
