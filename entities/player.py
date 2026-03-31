@@ -1,7 +1,7 @@
 import pygame
 from config import img_player, WIDTH, HEIGHT
 from entities.base import Base
-from map.wall import wall_group as Walls
+from map.wall import wall_group
 
 class Player(Base):
     def __init__(self, images, x, y, size, speed, controls):
@@ -26,9 +26,9 @@ class Player(Base):
             self.image = self.images["down"]
         
         self.rect.x += dx
-        if any(self.rect.colliderect(w.rect) and not w.is_bush for w in Walls):
+        if any(self.rect.colliderect(w.rect) for w in wall_group):
             self.rect.x -= dx
 
         self.rect.y += dy
-        if any(self.rect.colliderect(w.rect) and not w.is_bush for w in Walls):
+        if any(self.rect.colliderect(w.rect) for w in wall_group):
             self.rect.y -= dy
