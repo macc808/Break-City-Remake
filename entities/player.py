@@ -10,8 +10,7 @@ class Player(Base):
     
 
     def update(self):
-        global selected_level
-        keys = key.get_pressed()
+        keys = pygame.key.get_pressed()
         dx, dy = 0, 0
         if keys[self.controls["left"]] and self.rect.x > 5:
             dx = -self.speed
