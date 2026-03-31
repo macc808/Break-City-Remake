@@ -1,10 +1,18 @@
-import pygame
+import os
 import sys
-
+import pygame
+from pygame.locals import K_UP, K_DOWN, K_LEFT, K_RIGHT
+from entities.player import Player
+from config import img_player, WIDTH, HEIGHT
 from core.engine import Engine
 from core.scene_manager import Scene, SceneManager
 from map.level_loader import load_level_from_txt
 from map.wall import floor_group, wall_group
+
+# Якщо запускаєте цей файл напряму (не через main.py), то підключимо корінь проекту
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
 
 LEVEL_PATH = "assets/levels/level_01.txt"
 
@@ -33,6 +41,9 @@ class PlayScene(Scene):
         floor_group.draw(screen)
         wall_group.draw(screen)
 
+player1 = Player(img_player, WIDTH - 70, HEIGHT - 50, 50, 5, {
+            "up": K_UP, "down": K_DOWN, "left": K_LEFT, "right": K_RIGHT
+        })
 
 class Game:
     def __init__(self, width=960, height=640, fps=60):
