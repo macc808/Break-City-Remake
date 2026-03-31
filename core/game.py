@@ -21,6 +21,9 @@ class PlayScene(Scene):
     def __init__(self, name="play"):
         super().__init__(name)
         self.engine = Engine()
+        self.player = Player(img_player, WIDTH - 70, HEIGHT - 50, 50, 5, {
+            "up": K_UP, "down": K_DOWN, "left": K_LEFT, "right": K_RIGHT
+        })
 
     def start(self):
         load_level_from_txt(LEVEL_PATH)
@@ -32,6 +35,7 @@ class PlayScene(Scene):
 
     def update(self, dt):
         self.engine.update(dt)
+        self.player.update()
 
         # collisions (tile vs tile) is not needed for static map currently
         # place holder for future collisions between player/bullets/enemies
@@ -40,10 +44,8 @@ class PlayScene(Scene):
         screen.fill((30, 30, 30))
         floor_group.draw(screen)
         wall_group.draw(screen)
+        self.player.reset(screen)
 
-player1 = Player(img_player, WIDTH - 70, HEIGHT - 50, 50, 5, {
-            "up": K_UP, "down": K_DOWN, "left": K_LEFT, "right": K_RIGHT
-        })
 
 class Game:
     def __init__(self, width=960, height=640, fps=60):
