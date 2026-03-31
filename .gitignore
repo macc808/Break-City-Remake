@@ -1,2 +1,8 @@
-assets/images/floor.jpg
-assets/images/wall.jpg
+__pycache__/config.cpython-312.pyc
+core/__pycache__/engine.cpython-312.pyc
+core/__pycache__/game.cpython-312.pyc
+core/__pycache__/scene_manager.cpython-312.pyc
+entities/__pycache__/base.cpython-312.pyc
+entities/__pycache__/player.cpython-312.pyc
+map/__pycache__/level_loader.cpython-312.pyc
+map/__pycache__/wall.cpython-312.pyc
