@@ -1,7 +1,7 @@
 import os
 import sys
 import pygame
-from pygame.locals import K_UP, K_DOWN, K_LEFT, K_RIGHT
+from pygame.locals import K_UP, K_DOWN, K_LEFT, K_RIGHT, K_w, K_s, K_a, K_d
 from entities.player import Player
 from config import img_player, WIDTH, HEIGHT
 from core.engine import Engine
@@ -22,7 +22,8 @@ class PlayScene(Scene):
         super().__init__(name)
         self.engine = Engine()
         self.player = Player(img_player, WIDTH - 70, HEIGHT - 50, 50, 5, {
-            "up": K_UP, "down": K_DOWN, "left": K_LEFT, "right": K_RIGHT
+            "up1": K_UP, "down1": K_DOWN, "left1": K_LEFT, "right1": K_RIGHT,
+            "up2": K_w, "down2": K_s, "left2": K_a, "right2": K_d,
         })
 
     def start(self):
