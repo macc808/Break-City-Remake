@@ -35,9 +35,24 @@ def load_level_from_txt(path):
                     if image_path:
                         floor_group.add(FloorTile(image_path, x, y, TILE_SIZE))
 
-                elif tile_id == 2:
+                if tile_id == 2:
                     image_path = TILE_IMAGES.get(2)
+                    if image_path:
+                        floor_group.add(FloorTile(image_path, x, y, TILE_SIZE))
+
+                if tile_id == 3:
+                    image_path = TILE_IMAGES.get(3)
                     if image_path:
                         wall_group.add(Wall(image_path, x, y, TILE_SIZE))
 
+                if tile_id == 4:
+                    image_path = TILE_IMAGES.get(4)
+                    if image_path:
+                        floor_group.add(FloorTile(image_path, x, y, TILE_SIZE))
+    
+                if tile_id == 5:
+                    image_path = TILE_IMAGES.get(5)
+                    if image_path:
+                        floor_group.add(FloorTile(image_path, x, y, TILE_SIZE))
+    
     return floor_group, wall_group
