@@ -5,4 +5,4 @@ map/__pycache__/
 ui/__pycache__/
 utils/__pycache__/
 *.pyc
-
+game_log.txt
