@@ -5,5 +5,4 @@ map/__pycache__/
 ui/__pycache__/
 utils/__pycache__/
 *.pyc
-*.log
-game_log.log
+
