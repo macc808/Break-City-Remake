@@ -7,8 +7,24 @@ from logger import Logger
 class Bullet(Base):
     def __init__(self, x, y, direction, width=16, height=None, speed=10):
         super().__init__(img_bullet, x, y, width, height, speed)
-        self.set_direction(direction)
         self.direction = direction  # направление движения ("up", "down", "left", "right")
+        self.set_direction(direction)
+
+    def set_direction(self, direction):
+        # Установить направление и визуально разворачивать пулю
+        super().set_direction(direction)
+
+        center = self.rect.center
+        if direction == "up":
+            self.image = pygame.transform.rotate(self.image, 90)
+        elif direction == "down":
+            self.image = pygame.transform.rotate(self.image, -90)
+        elif direction == "left":
+            self.image = pygame.transform.rotate(self.image, 180)
+        elif direction == "right":
+            self.image = self.image  # уже вправо
+
+        self.rect = self.image.get_rect(center=center)
 
     def update(self):
         dx, dy = 0, 0
