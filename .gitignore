@@ -6,3 +6,4 @@ ui/__pycache__/
 utils/__pycache__/
 *.pyc
 game_log.txt
+game_log.log
