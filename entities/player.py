@@ -6,9 +6,19 @@ from map.wall import wall_group
 from logger import Logger
 
 class Player(Base):
-    def __init__(self, images, x, y, size, speed, controls):
-        super().__init__(images, x, y, size, speed)
-        self.controls = controls  # словник клавіш
+    def __init__(self, images, x, y, width, height=None, speed=None, controls=None):
+        # Поддерживаем старый вызов: (images, x, y, size, speed, controls)
+        if isinstance(speed, dict):
+            controls = speed
+            speed = height
+            height = width
+        if height is None:
+            height = width
+        if speed is None:
+            speed = 0
+
+        super().__init__(images, x, y, width, height, speed)
+        self.controls = controls or {}  # словник клавіш
         self.direction = "up"
         self.shoot_cooldown = 0.35
         self._shoot_timer = 0.0
@@ -29,30 +39,30 @@ class Player(Base):
         keys = pygame.key.get_pressed()
         dx, dy = 0, 0
 
-        left_pressed = keys[self.controls.get("left1")] or keys[self.controls.get("left2")]
-        right_pressed = keys[self.controls.get("right1")] or keys[self.controls.get("right2")]
-        up_pressed = keys[self.controls.get("up1")] or keys[self.controls.get("up2")]
-        down_pressed = keys[self.controls.get("down1")] or keys[self.controls.get("down2")]
+        left_pressed = ((self.controls.get("left1") is not None and keys[self.controls.get("left1")])
+                        or (self.controls.get("left2") is not None and keys[self.controls.get("left2")]))
+        right_pressed = ((self.controls.get("right1") is not None and keys[self.controls.get("right1")])
+                         or (self.controls.get("right2") is not None and keys[self.controls.get("right2")]))
+        up_pressed = ((self.controls.get("up1") is not None and keys[self.controls.get("up1")])
+                      or (self.controls.get("up2") is not None and keys[self.controls.get("up2")]))
+        down_pressed = ((self.controls.get("down1") is not None and keys[self.controls.get("down1")])
+                        or (self.controls.get("down2") is not None and keys[self.controls.get("down2")]))
 
-        if left_pressed and self.rect.x > 5:
+        if left_pressed and not right_pressed and self.rect.x > 5:
             dx = -self.speed
-            self.image = self.images["left"]
-            self.direction = "left"
+            self.set_direction("left")
             Logger().log_message(self.update, f"Moving left to x={self.rect.x + dx}")
-        if right_pressed and self.rect.x < WIDTH - 50:
+        elif right_pressed and not left_pressed and self.rect.x < WIDTH - self.rect.width - 5:
             dx = self.speed
-            self.image = self.images["right"]
-            self.direction = "right"
+            self.set_direction("right")
             Logger().log_message(self.update, f"Moving right to x={self.rect.x + dx}")
-        if up_pressed and self.rect.y > 5:
+        elif up_pressed and not down_pressed and self.rect.y > 5:
             dy = -self.speed
-            self.image = self.images["up"]
-            self.direction = "up"
+            self.set_direction("up")
             Logger().log_message(self.update, f"Moving up to y={self.rect.y + dy}")
-        if down_pressed and self.rect.y < HEIGHT - 50:
+        elif down_pressed and not up_pressed and self.rect.y < HEIGHT - self.rect.height - 5:
             dy = self.speed
-            self.image = self.images["down"]
-            self.direction = "down"
+            self.set_direction("down")
             Logger().log_message(self.update, f"Moving down to y={self.rect.y + dy}")
 
         self.rect.x += dx

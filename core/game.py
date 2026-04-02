@@ -24,11 +24,11 @@ class PlayScene(Scene):
     def __init__(self, name="play"):
         super().__init__(name)
         self.engine = Engine()
-        self.player = Player(img_player, WIDTH - 70, HEIGHT - 50, 50, 5, {
+        self.player = Player(img_player, WIDTH - 70, HEIGHT - 50, 50, 40, 5, {
             "up1": K_UP, "down1": K_DOWN, "left1": K_LEFT, "right1": K_RIGHT,
             "up2": K_w, "down2": K_s, "left2": K_a, "right2": K_d,
         })
-        self.enemy = Enemy(img_player, 80, 80, 50, 2, "random")
+        self.enemy = Enemy(img_player, 80, 80, 50, 40, 2, "random")
         self.player_bullets = []
         self.enemy_bullets = []
 

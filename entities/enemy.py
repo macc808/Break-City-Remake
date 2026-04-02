@@ -7,9 +7,19 @@ from map.wall import wall_group
 from logger import Logger
 
 class Enemy(Base):
-    def __init__(self, images, x, y, size, speed, ai_type):
-        super().__init__(images, x, y, size, speed)
-        self.ai_type = ai_type  # тип ИИ (например, "patrol", "chase", "random")
+    def __init__(self, images, x, y, width, height=None, speed=None, ai_type=None):
+        # Поддерживаем старый вызов: (images, x, y, size, speed, ai_type)
+        if isinstance(speed, str):
+            ai_type = speed
+            speed = height
+            height = width
+        if height is None:
+            height = width
+        if speed is None:
+            speed = 0
+
+        super().__init__(images, x, y, width, height, speed)
+        self.ai_type = ai_type or "random"  # тип ИИ (например, "patrol", "chase", "random")
         self.direction = "down"
         self.shoot_cooldown = 1.0
         self._shoot_timer = 0.0
@@ -35,16 +45,16 @@ class Enemy(Base):
         dx, dy = 0, 0
         if self.direction == "up":
             dy = -self.speed
-            self.image = self.images["up"]
+            self.set_direction("up")
         elif self.direction == "down":
             dy = self.speed
-            self.image = self.images["down"]
+            self.set_direction("down")
         elif self.direction == "left":
             dx = -self.speed
-            self.image = self.images["left"]
+            self.set_direction("left")
         elif self.direction == "right":
             dx = self.speed
-            self.image = self.images["right"]
+            self.set_direction("right")
 
         self.rect.x += dx
         if any(self.rect.colliderect(w.rect) for w in wall_group):
