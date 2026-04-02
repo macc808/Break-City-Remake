@@ -1,6 +1,6 @@
 class Logger:
     def __init__(self):
-        self.filename = "game_log.log"
+        self.filename = "game_log.txt"
 
     def log_message(self, func, res):
         with open(self.filename, 'a') as f:
