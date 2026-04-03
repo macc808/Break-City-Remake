@@ -23,6 +23,13 @@ img_player = {
     "right": "assets/images/player-right.jpg"
 }
 
+img_enemy = {
+    "down": "assets/images/enemy-down.jpg",
+    "up": "assets/images/enemy-up.jpg",
+    "left": "assets/images/enemy-left.jpg",
+    "right": "assets/images/enemy-right.jpg"
+}
+
 img_bullet = {
     "down": "assets/images/bullet.png",
     "up": "assets/images/bullet.png",

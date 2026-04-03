@@ -5,7 +5,7 @@ from pygame.locals import K_UP, K_DOWN, K_LEFT, K_RIGHT, K_w, K_s, K_a, K_d
 from entities.player import Player
 from entities.enemy import Enemy
 from entities.bullet import Bullet
-from config import img_player, WIDTH, HEIGHT
+from config import img_player, WIDTH, HEIGHT, img_enemy
 from core.engine import Engine
 from core.scene_manager import Scene, SceneManager
 from map.level_loader import load_level_from_txt
@@ -28,7 +28,7 @@ class PlayScene(Scene):
             "up1": K_UP, "down1": K_DOWN, "left1": K_LEFT, "right1": K_RIGHT,
             "up2": K_w, "down2": K_s, "left2": K_a, "right2": K_d,
         })
-        self.enemy = Enemy(img_player, 80, 80, 50, 40, 2, "random")
+        self.enemy = Enemy(img_enemy, 80, 80, 50, 40, 2, "random")
         self.player_bullets = []
         self.enemy_bullets = []
 

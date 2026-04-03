@@ -1,6 +1,6 @@
 import pygame
 import random
-from config import img_player, WIDTH, HEIGHT
+from config import img_enemy, WIDTH, HEIGHT
 from entities.base import Base
 from entities.bullet import Bullet
 from map.wall import wall_group
