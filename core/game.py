@@ -12,7 +12,7 @@ from map.level_loader import load_level_from_txt
 from map.wall import floor_group, wall_group
 from logger import Logger
 
-# Якщо запускаєте цей файл напряму (не через main.py), то підключимо корінь проекту
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if BASE_DIR not in sys.path:
     sys.path.insert(0, BASE_DIR)
