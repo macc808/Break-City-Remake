@@ -5,6 +5,7 @@ from pygame.locals import K_UP, K_DOWN, K_LEFT, K_RIGHT, K_w, K_s, K_a, K_d
 from entities.player import Player
 from entities.enemy import Enemy
 from entities.bullet import Bullet
+from entities.factory import WaveManager
 from config import img_player, WIDTH, HEIGHT, img_enemy, TILE_SIZE
 from core.engine import Engine
 from core.scene_manager import Scene, SceneManager
@@ -21,24 +22,21 @@ LEVEL_PATH = "assets/levels/level_01.txt"
 
 
 class PlayScene(Scene):
-    def __init__(self, name="play"):
+    def __init__(self, name="play", level=1):
         super().__init__(name)
+        self.level = level
         self.engine = Engine()
         self.player = Player(img_player, WIDTH - 70, HEIGHT - 50, 55, 35, 5, {
             "up1": K_UP, "down1": K_DOWN, "left1": K_LEFT, "right1": K_RIGHT,
             "up2": K_w, "down2": K_s, "left2": K_a, "right2": K_d,
         })
+        self.wave_manager = WaveManager(level)
         self.enemies = []
         self.player_bullets = []
         self.enemy_bullets = []
 
     def start(self):
-        floor_group, wall_group, enemy_spawns = load_level_from_txt(LEVEL_PATH)
-        for x, y, ai_type in enemy_spawns:
-            # Center the enemy on the tile
-            enemy_x = x + TILE_SIZE // 2 - 25
-            enemy_y = y + TILE_SIZE // 2 - 15
-            self.enemies.append(Enemy(img_enemy, enemy_x, enemy_y, 50, 30, 2, ai_type))
+        load_level_from_txt(LEVEL_PATH)
 
     def handle_event(self, event):
         if event.type == pygame.QUIT:
@@ -48,6 +46,11 @@ class PlayScene(Scene):
     def update(self, dt):
         self.engine.update(dt)
         self.player.update(dt)
+        
+        # Обновить wave manager и спавнить новых врагов
+        new_enemies = self.wave_manager.update(dt)
+        self.enemies.extend(new_enemies)
+        
         for enemy in self.enemies:
             enemy.update(dt)
 
@@ -88,6 +91,9 @@ class PlayScene(Scene):
                 self.enemy_bullets.remove(bullet)
                 if self.player.is_dead:
                     Logger().log_message(self.update, "Player defeated!")
+        
+        # Оновити статус хвилі на основі живих врагів
+        self.wave_manager.update_wave_status(self.enemies)
 
     def draw(self, screen):
         screen.fill((30, 30, 30))
@@ -99,6 +105,16 @@ class PlayScene(Scene):
 
         for bullet in self.player_bullets + self.enemy_bullets:
             bullet.reset(screen)
+        
+        # Отобразить информацию о волне
+        self._draw_wave_info(screen)
+    
+    def _draw_wave_info(self, screen):
+        """Отобразить информацию о текущей волне на экране"""
+        font = pygame.font.Font(None, 36)
+        wave_text = f"Wave: {self.wave_manager.get_current_wave()}/{self.wave_manager.get_total_waves()}"
+        text_surface = font.render(wave_text, True, (255, 255, 255))
+        screen.blit(text_surface, (WIDTH - 250, 20))
 
 
 class Game:

@@ -40,3 +40,102 @@ img_bullet = {
     "left": "assets/images/bullet.png",
     "right": "assets/images/bullet.png"
 }
+
+# Фіксовані позиції спавнення для рівнів
+SPAWN_POSITIONS = {
+    1: [  # Level 1
+        (64, 64),      # top-left
+        (640, 64),     # top-center
+        (896, 64),     # top-right
+        (64, 576),     # bottom-left
+        (640, 576),    # bottom-center
+        (896, 576),    # bottom-right
+    ]
+}
+
+# Конфігурація хвиль для рівнів (10 хвиль для рівня 1)
+WAVES_CONFIG = {
+    1: [  # Level 1 - 10 хвиль
+        {
+            "enemies": [
+                {"ai_type": 1, "spawn_index": 0},  # AI type random на позиції 0
+            ]
+        },
+        {
+            "enemies": [
+                {"ai_type": 1, "spawn_index": 1},
+                {"ai_type": 1, "spawn_index": 2},
+            ]
+        },
+        {
+            "enemies": [
+                {"ai_type": 2, "spawn_index": 0},
+                {"ai_type": 1, "spawn_index": 1},
+                {"ai_type": 1, "spawn_index": 2},
+            ]
+        },
+        {
+            "enemies": [
+                {"ai_type": 2, "spawn_index": 0},
+                {"ai_type": 2, "spawn_index": 1},
+                {"ai_type": 1, "spawn_index": 2},
+                {"ai_type": 1, "spawn_index": 3},
+            ]
+        },
+        {
+            "enemies": [
+                {"ai_type": 2, "spawn_index": 0},
+                {"ai_type": 2, "spawn_index": 1},
+                {"ai_type": 2, "spawn_index": 2},
+                {"ai_type": 1, "spawn_index": 3},
+            ]
+        },
+        {
+            "enemies": [
+                {"ai_type": 3, "spawn_index": 0},
+                {"ai_type": 2, "spawn_index": 1},
+                {"ai_type": 2, "spawn_index": 2},
+                {"ai_type": 2, "spawn_index": 3},
+                {"ai_type": 1, "spawn_index": 4},
+            ]
+        },
+        {
+            "enemies": [
+                {"ai_type": 3, "spawn_index": 0},
+                {"ai_type": 3, "spawn_index": 1},
+                {"ai_type": 2, "spawn_index": 2},
+                {"ai_type": 2, "spawn_index": 3},
+                {"ai_type": 2, "spawn_index": 4},
+            ]
+        },
+        {
+            "enemies": [
+                {"ai_type": 3, "spawn_index": 0},
+                {"ai_type": 3, "spawn_index": 1},
+                {"ai_type": 3, "spawn_index": 2},
+                {"ai_type": 2, "spawn_index": 3},
+                {"ai_type": 2, "spawn_index": 4},
+            ]
+        },
+        {
+            "enemies": [
+                {"ai_type": 3, "spawn_index": 0},
+                {"ai_type": 3, "spawn_index": 1},
+                {"ai_type": 3, "spawn_index": 2},
+                {"ai_type": 3, "spawn_index": 3},
+                {"ai_type": 2, "spawn_index": 4},
+                {"ai_type": 2, "spawn_index": 5},
+            ]
+        },
+        {
+            "enemies": [
+                {"ai_type": 3, "spawn_index": 0},
+                {"ai_type": 3, "spawn_index": 1},
+                {"ai_type": 3, "spawn_index": 2},
+                {"ai_type": 3, "spawn_index": 3},
+                {"ai_type": 3, "spawn_index": 4},
+                {"ai_type": 3, "spawn_index": 5},
+            ]
+        },
+    ]
+}
