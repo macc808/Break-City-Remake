@@ -22,6 +22,18 @@ class Player(Base):
         self.direction = "up"
         self.shoot_cooldown = 0.35
         self._shoot_timer = 0.0
+        self.max_health = 100
+        self.health = self.max_health
+        self.is_dead = False
+    
+    def take_damage(self, damage):
+        """Зменшити здоров'я гравця"""
+        self.health = max(0, self.health - damage)
+        Logger().log_message(self.take_damage, f"Player took {damage} damage. Health: {self.health}/{self.max_health}")
+        if self.health <= 0:
+            self.is_dead = True
+            Logger().log_message(self.take_damage, "Player died")
+        return self.health
     
     def shoot(self):
         if self._shoot_timer < self.shoot_cooldown:

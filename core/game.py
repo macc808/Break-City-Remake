@@ -61,8 +61,11 @@ class PlayScene(Scene):
                 self.player_bullets.remove(bullet)
                 continue
             if bullet.rect.colliderect(self.enemy.rect):
-                Logger().log_message(self.update, "Enemy hit by player bullet")
+                self.enemy.take_damage(10)  # 10 урону за попадання
+                Logger().log_message(self.update, f"Enemy hit! Health: {self.enemy.health}")
                 self.player_bullets.remove(bullet)
+                if self.enemy.is_dead:
+                    Logger().log_message(self.update, "Enemy defeated!")
 
         for bullet in self.enemy_bullets[:]:
             remove = bullet.update()
@@ -70,8 +73,11 @@ class PlayScene(Scene):
                 self.enemy_bullets.remove(bullet)
                 continue
             if bullet.rect.colliderect(self.player.rect):
-                Logger().log_message(self.update, "Player hit by enemy bullet")
+                self.player.take_damage(15)  # 15 урону за попадання
+                Logger().log_message(self.update, f"Player hit! Health: {self.player.health}")
                 self.enemy_bullets.remove(bullet)
+                if self.player.is_dead:
+                    Logger().log_message(self.update, "Player defeated!")
 
     def draw(self, screen):
         screen.fill((30, 30, 30))

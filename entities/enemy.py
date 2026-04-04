@@ -8,7 +8,7 @@ from logger import Logger
 
 class Enemy(Base):
     def __init__(self, images, x, y, width, height=None, speed=None, ai_type=None):
-        # Поддерживаем старый вызов: (images, x, y, size, speed, ai_type)
+        # Поддерживаем старий виклик: (images, x, y, size, speed, ai_type)
         if isinstance(speed, str):
             ai_type = speed
             speed = height
@@ -19,13 +19,27 @@ class Enemy(Base):
             speed = 0
 
         super().__init__(images, x, y, width, height, speed)
-        self.ai_type = ai_type or "random"  # тип ИИ (например, "patrol", "chase", "random")
+        self.ai_type = ai_type or "random"  # тип ІІ (наприклад, "patrol", "chase", "random")
         self.direction = "down"
         self.shoot_cooldown = 1.0
         self._shoot_timer = 0.0
         self._move_timer = 0.0
+        self.max_health = 30
+        self.health = self.max_health
+        self.is_dead = False
 
+    def take_damage(self, damage):
+        """Зменшити здоров'я ворога"""
+        self.health = max(0, self.health - damage)
+        Logger().log_message(self.take_damage, f"Enemy took {damage} damage. Health: {self.health}/{self.max_health}")
+        if self.health <= 0:
+            self.is_dead = True
+            Logger().log_message(self.take_damage, "Enemy died")
+        return self.health
+    
     def shoot(self, dt=0):
+        if self.is_dead:
+            return None
         self._shoot_timer += dt
         if self._shoot_timer < self.shoot_cooldown:
             return None

@@ -5,7 +5,7 @@ from map.wall import wall_group
 from logger import Logger
 
 class Bullet(Base):
-    def __init__(self, x, y, direction, width=16, height=None, speed=10):
+    def __init__(self, x, y, direction, width=16, height=None, speed=10, is_enemy=False):
         super().__init__(img_bullet, x, y, width, height, speed)
         self.direction = direction  # направление движения ("up", "down", "left", "right")
         self.set_direction(direction)
@@ -45,6 +45,7 @@ class Bullet(Base):
         if any(self.rect.colliderect(w.rect) for w in wall_group):
             Logger().log_message(self.update, f"Bullet collided with wall at x={self.rect.x}, removing bullet")
             return True
+
 
         self.rect.y += dy
         if any(self.rect.colliderect(w.rect) for w in wall_group):
