@@ -10,10 +10,14 @@ TILE_SIZE = 64
 TILE_IMAGES = {
     0: None,
     1: "assets/images/floor.jpg",
-    2: "assets/images/floor1.png",
-    3: "assets/images/wall.jpg",
-    4: "assets/images/road.jpg",
-    5: "assets/images/road1.jpg",
+    2: "assets/images/wall.jpg",
+    3: "assets/images/road.jpg",
+}
+
+ENEMY_AI_TYPES = {
+    1: "random",
+    2: "speed",
+    3: "tank"
 }
 
 img_player = {

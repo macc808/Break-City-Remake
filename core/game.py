@@ -5,7 +5,7 @@ from pygame.locals import K_UP, K_DOWN, K_LEFT, K_RIGHT, K_w, K_s, K_a, K_d
 from entities.player import Player
 from entities.enemy import Enemy
 from entities.bullet import Bullet
-from config import img_player, WIDTH, HEIGHT, img_enemy
+from config import img_player, WIDTH, HEIGHT, img_enemy, TILE_SIZE
 from core.engine import Engine
 from core.scene_manager import Scene, SceneManager
 from map.level_loader import load_level_from_txt
@@ -28,12 +28,17 @@ class PlayScene(Scene):
             "up1": K_UP, "down1": K_DOWN, "left1": K_LEFT, "right1": K_RIGHT,
             "up2": K_w, "down2": K_s, "left2": K_a, "right2": K_d,
         })
-        self.enemy = Enemy(img_enemy, 80, 80, 50, 30, 2, "random")
+        self.enemies = []
         self.player_bullets = []
         self.enemy_bullets = []
 
     def start(self):
-        load_level_from_txt(LEVEL_PATH)
+        floor_group, wall_group, enemy_spawns = load_level_from_txt(LEVEL_PATH)
+        for x, y, ai_type in enemy_spawns:
+            # Center the enemy on the tile
+            enemy_x = x + TILE_SIZE // 2 - 25
+            enemy_y = y + TILE_SIZE // 2 - 15
+            self.enemies.append(Enemy(img_enemy, enemy_x, enemy_y, 50, 30, 2, ai_type))
 
     def handle_event(self, event):
         if event.type == pygame.QUIT:
@@ -43,7 +48,8 @@ class PlayScene(Scene):
     def update(self, dt):
         self.engine.update(dt)
         self.player.update(dt)
-        self.enemy.update(dt)
+        for enemy in self.enemies:
+            enemy.update(dt)
 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_SPACE]:
@@ -51,21 +57,25 @@ class PlayScene(Scene):
             if bullet:
                 self.player_bullets.append(bullet)
 
-        enemy_shot = self.enemy.shoot(dt)
-        if enemy_shot:
-            self.enemy_bullets.append(enemy_shot)
+        for enemy in self.enemies:
+            enemy_shot = enemy.shoot(dt)
+            if enemy_shot:
+                self.enemy_bullets.append(enemy_shot)
 
         for bullet in self.player_bullets[:]:
             remove = bullet.update()
             if remove:
                 self.player_bullets.remove(bullet)
                 continue
-            if bullet.rect.colliderect(self.enemy.rect):
-                self.enemy.take_damage(10)  # 10 урону за попадання
-                Logger().log_message(self.update, f"Enemy hit! Health: {self.enemy.health}")
-                self.player_bullets.remove(bullet)
-                if self.enemy.is_dead:
-                    Logger().log_message(self.update, "Enemy defeated!")
+            for enemy in self.enemies[:]:
+                if bullet.rect.colliderect(enemy.rect):
+                    enemy.take_damage(10)  # 10 урону за попадання
+                    Logger().log_message(self.update, f"Enemy hit! Health: {enemy.health}")
+                    self.player_bullets.remove(bullet)
+                    if enemy.is_dead:
+                        Logger().log_message(self.update, "Enemy defeated!")
+                        self.enemies.remove(enemy)
+                    break
 
         for bullet in self.enemy_bullets[:]:
             remove = bullet.update()
@@ -84,7 +94,8 @@ class PlayScene(Scene):
         floor_group.draw(screen)
         wall_group.draw(screen)
         self.player.reset(screen)
-        self.enemy.reset(screen)
+        for enemy in self.enemies:
+            enemy.reset(screen)
 
         for bullet in self.player_bullets + self.enemy_bullets:
             bullet.reset(screen)
