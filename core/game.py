@@ -12,6 +12,7 @@ from core.scene_manager import Scene, SceneManager
 from map.level_loader import load_level_from_txt
 from map.wall import floor_group, wall_group
 from logger import Logger
+from ui.elements import HealthBar, PauseButton, PauseMenu
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -34,6 +35,15 @@ class PlayScene(Scene):
         self.enemies = []
         self.player_bullets = []
         self.enemy_bullets = []
+        
+        # UI елементи
+        self.health_bar = HealthBar(self.player.max_health, x=10, y=10, width=300, height=30)
+        self.health_bar.update(self.player.health)  # Ініціалізуємо здоров'я
+        self.pause_button = PauseButton()
+        self.pause_menu = PauseMenu()
+        
+        # Стан паузи
+        self.is_paused = False
 
     def start(self):
         load_level_from_txt(LEVEL_PATH)
@@ -42,8 +52,25 @@ class PlayScene(Scene):
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit(0)
+        
+        # Обробка паузи
+        if self.is_paused:
+            action = self.pause_menu.handle_click(event)
+            if action == "continue":
+                self.is_paused = False
+            elif action == "quit":
+                pygame.quit()
+                sys.exit(0)
+        else:
+            # Перевірка кліку на кнопку паузи
+            if self.pause_button.is_clicked(event):
+                self.is_paused = True
 
     def update(self, dt):
+        # Якщо гра на паузі, не оновлюємо
+        if self.is_paused:
+            return
+        
         self.engine.update(dt)
         self.player.update(dt)
         
@@ -87,6 +114,8 @@ class PlayScene(Scene):
                 continue
             if bullet.rect.colliderect(self.player.rect):
                 self.player.take_damage(15)  # 15 урону за попадання
+                # Оновлюємо display здоров'я
+                self.health_bar.update(self.player.health)
                 Logger().log_message(self.update, f"Player hit! Health: {self.player.health}")
                 self.enemy_bullets.remove(bullet)
                 if self.player.is_dead:
@@ -108,6 +137,19 @@ class PlayScene(Scene):
         
         # Отобразить информацию о волне
         self._draw_wave_info(screen)
+        
+        # Отобразить жизни гравца
+        self.health_bar.draw(screen)
+        
+        # Отобразить кнопку паузи
+        mouse_pos = pygame.mouse.get_pos()
+        self.pause_button.update(mouse_pos)
+        self.pause_button.draw(screen)
+        
+        # Если игра на паузе, вывести меню паузи
+        if self.is_paused:
+            self.pause_menu.update(mouse_pos)
+            self.pause_menu.draw(screen)
     
     def _draw_wave_info(self, screen):
         """Отобразить информацию о текущей волне на экране"""
