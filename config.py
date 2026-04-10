@@ -15,9 +15,9 @@ TILE_IMAGES = {
 }
 
 ENEMY_AI_TYPES = {
-    1: "random",
+    1: "sniper",
     2: "speed",
-    3: "tank"
+    3: "chase"
 }
 
 img_player = {
@@ -53,30 +53,39 @@ SPAWN_POSITIONS = {
     ]
 }
 
-# Конфігурація хвиль для рівнів (10 хвиль для рівня 1)
+# ========================================
+# ТИПИ AI ДЛЯ ВОРОГІВ
+# ========================================
+# 1 = "chase"  - гонитися за гравцем (просто їде вперед)
+# 2 = "speed"  - підїжджати близько (150px) та кружляти навколо
+# 3 = "sniper" - утримувати дистанцію (300px) та стріляти
+# ========================================
+
+# Конфігурація хвиль для рівнів
+# Легко настроювати: змінюйте ai_type (1, 2, 3) та spawn_index (0-5)
 WAVES_CONFIG = {
     1: [  # Level 1 - 10 хвиль
         {
             "enemies": [
-                {"ai_type": 1, "spawn_index": 0},  # AI type random на позиції 0
+                {"ai_type": 1, "spawn_index": 0},  # 1x Chase на позиції 0
             ]
         },
         {
             "enemies": [
-                {"ai_type": 1, "spawn_index": 1},
+                {"ai_type": 1, "spawn_index": 1},  # 2x Chase
                 {"ai_type": 1, "spawn_index": 2},
             ]
         },
         {
             "enemies": [
-                {"ai_type": 2, "spawn_index": 0},
-                {"ai_type": 1, "spawn_index": 1},
-                {"ai_type": 1, "spawn_index": 2},
+                {"ai_type": 1, "spawn_index": 0},  # 1x Speed + 2x Chase
+                {"ai_type": 2, "spawn_index": 1},
+                {"ai_type": 3, "spawn_index": 2},
             ]
         },
         {
             "enemies": [
-                {"ai_type": 2, "spawn_index": 0},
+                {"ai_type": 2, "spawn_index": 0},  # 2x Speed + 2x Chase
                 {"ai_type": 2, "spawn_index": 1},
                 {"ai_type": 1, "spawn_index": 2},
                 {"ai_type": 1, "spawn_index": 3},
@@ -84,7 +93,7 @@ WAVES_CONFIG = {
         },
         {
             "enemies": [
-                {"ai_type": 2, "spawn_index": 0},
+                {"ai_type": 2, "spawn_index": 0},  # 3x Speed + 1x Chase
                 {"ai_type": 2, "spawn_index": 1},
                 {"ai_type": 2, "spawn_index": 2},
                 {"ai_type": 1, "spawn_index": 3},
@@ -92,7 +101,7 @@ WAVES_CONFIG = {
         },
         {
             "enemies": [
-                {"ai_type": 3, "spawn_index": 0},
+                {"ai_type": 3, "spawn_index": 0},  # 1x Sniper + 3x Speed + 1x Chase
                 {"ai_type": 2, "spawn_index": 1},
                 {"ai_type": 2, "spawn_index": 2},
                 {"ai_type": 2, "spawn_index": 3},
@@ -101,7 +110,7 @@ WAVES_CONFIG = {
         },
         {
             "enemies": [
-                {"ai_type": 3, "spawn_index": 0},
+                {"ai_type": 3, "spawn_index": 0},  # 2x Sniper + 3x Speed
                 {"ai_type": 3, "spawn_index": 1},
                 {"ai_type": 2, "spawn_index": 2},
                 {"ai_type": 2, "spawn_index": 3},
@@ -110,7 +119,7 @@ WAVES_CONFIG = {
         },
         {
             "enemies": [
-                {"ai_type": 3, "spawn_index": 0},
+                {"ai_type": 3, "spawn_index": 0},  # 3x Sniper + 2x Speed
                 {"ai_type": 3, "spawn_index": 1},
                 {"ai_type": 3, "spawn_index": 2},
                 {"ai_type": 2, "spawn_index": 3},
@@ -119,7 +128,7 @@ WAVES_CONFIG = {
         },
         {
             "enemies": [
-                {"ai_type": 3, "spawn_index": 0},
+                {"ai_type": 3, "spawn_index": 0},  # 4x Sniper + 2x Speed
                 {"ai_type": 3, "spawn_index": 1},
                 {"ai_type": 3, "spawn_index": 2},
                 {"ai_type": 3, "spawn_index": 3},
@@ -129,7 +138,7 @@ WAVES_CONFIG = {
         },
         {
             "enemies": [
-                {"ai_type": 3, "spawn_index": 0},
+                {"ai_type": 3, "spawn_index": 0},  # 6x Sniper (найскладніша хвиля!)
                 {"ai_type": 3, "spawn_index": 1},
                 {"ai_type": 3, "spawn_index": 2},
                 {"ai_type": 3, "spawn_index": 3},

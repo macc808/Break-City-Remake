@@ -27,6 +27,12 @@ class Bullet(Base):
         self.rect = self.image.get_rect(center=center)
 
     def update(self):
+        """
+        Обновить позицію пулі та розрахувати колізії.
+        
+        Returns:
+            bool: True якщо пулю потрібно видалити, False інакше
+        """
         dx, dy = 0, 0
         if self.direction == "up":
             dy = -self.speed
@@ -41,19 +47,24 @@ class Bullet(Base):
             dx = self.speed
             self.set_direction("right")
 
-        self.rect.x += dx
-        if any(self.rect.colliderect(w.rect) for w in wall_group):
-            Logger().log_message(self.update, f"Bullet collided with wall at x={self.rect.x}, removing bullet")
-            return True
-
-
-        self.rect.y += dy
-        if any(self.rect.colliderect(w.rect) for w in wall_group):
-            Logger().log_message(self.update, f"Bullet collided with wall at y={self.rect.y}, removing bullet")
-            return True
-
-        if self.rect.right < 0 or self.rect.left > WIDTH or self.rect.bottom < 0 or self.rect.top > HEIGHT:
+        # Перевірити границі екрану ПЕРЕД рухом
+        if self.rect.right + dx < 0 or self.rect.left + dx > WIDTH or \
+           self.rect.bottom + dy < 0 or self.rect.top + dy > HEIGHT:
             Logger().log_message(self.update, f"Bullet left screen at x={self.rect.x}, y={self.rect.y}")
+            return True
+
+        # Рух по горизонталі
+        self.rect.x += dx
+        # Перевірити зіткнення зі стінами по горизонталі
+        if any(self.rect.colliderect(w.rect) for w in wall_group):
+            Logger().log_message(self.update, f"Bullet blocked by wall at x={self.rect.x}")
+            return True
+
+        # Рух по вертикалі
+        self.rect.y += dy
+        # Перевірити зіткнення зі стінами по вертикалі
+        if any(self.rect.colliderect(w.rect) for w in wall_group):
+            Logger().log_message(self.update, f"Bullet blocked by wall at y={self.rect.y}")
             return True
 
         return False
