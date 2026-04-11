@@ -365,14 +365,14 @@ class LevelSelectScene(Scene):
         self._load_background()
         
         # Кількість рівнів
-        self.num_levels = 4
+        self.num_levels = 5
         self.level_buttons = []
         
         # Створюємо кнопки для кожного рівня
         button_width = 150
         button_height = 60
         start_x = WIDTH // 2 - (button_width * 2 + 30)
-        start_y = HEIGHT // 2 - 50
+        start_y = HEIGHT // 2 - 80
         
         for i in range(self.num_levels):
             row = i // 2
