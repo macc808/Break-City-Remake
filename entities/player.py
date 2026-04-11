@@ -22,7 +22,7 @@ class Player(Base):
         self.direction = "up"
         self.shoot_cooldown = 0.35
         self._shoot_timer = 0.0
-        self.max_health = 1000
+        self.max_health = 220
         self.health = self.max_health
         self.is_dead = False
     
