@@ -43,6 +43,23 @@ class Enemy(Base):
         self.health = self.max_health
         self.is_dead = False
         
+        # Встановлення статів залежно від типу AI
+        if self.ai_type == "sniper":
+            # Снайпер: збільшена в 1.5 раза шкода (15 * 1.5 = 22.5) округляємо до 22
+            self.damage = 22
+        elif self.ai_type == "speed":
+            # Швидкий: збільшена в 1.7 раза швидкість (2 * 1.7 = 3.4)
+            self.speed = 3.4
+            self.damage = 15
+        elif self.ai_type == "chase":
+            # Гонеча: збільшене здоров'я на 10 (30 + 10 = 40)
+            self.max_health = 40
+            self.health = self.max_health
+            self.damage = 15
+        else:
+            # За замовчуванням
+            self.damage = 15
+        
         # Параметри для различних AI типов
         self._target_player = None  # Посилання на гравця
         self._orbit_direction = random.choice(["clockwise", "counterclockwise"])  # Для speed типу
@@ -140,7 +157,7 @@ class Enemy(Base):
         spawn_x = self.rect.centerx - 8
         spawn_y = self.rect.centery - 8
         Logger().log_message(self.shoot, f"Enemy ({self.ai_type}) shooting ({self.direction}) at distance {distance:.0f}px")
-        return Bullet(spawn_x, spawn_y, self.direction, speed=8)
+        return Bullet(spawn_x, spawn_y, self.direction, speed=8, damage=int(self.damage))
     
     def _predict_player_position(self, player, time_ahead=0.5):
         """

@@ -194,7 +194,7 @@ class PlayScene(Scene):
             
             # Перевірка зіткнення з гравцем
             if bullet.rect.colliderect(self.player.rect):
-                self.player.take_damage(15)  # 15 урону за попадання
+                self.player.take_damage(bullet.damage)  # Використовуємо шкоду з пулі
                 # Оновлюємо display здоров'я
                 self.health_bar.update(self.player.health)
                 Logger().log_message(self.update, f"Player hit! Health: {self.player.health}")

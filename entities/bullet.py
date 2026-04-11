@@ -5,9 +5,10 @@ from map.wall import wall_group
 from logger import Logger
 
 class Bullet(Base):
-    def __init__(self, x, y, direction, width=16, height=None, speed=10, is_enemy=False):
+    def __init__(self, x, y, direction, width=16, height=None, speed=10, is_enemy=False, damage=15):
         super().__init__(img_bullet, x, y, width, height, speed)
         self.direction = direction  # направление движения ("up", "down", "left", "right")
+        self.damage = damage  # Шкода, яку наносить пуля
         self.set_direction(direction)
 
     def set_direction(self, direction):
