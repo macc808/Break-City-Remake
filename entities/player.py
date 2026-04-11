@@ -22,7 +22,7 @@ class Player(Base):
         self.direction = "up"
         self.shoot_cooldown = 0.35
         self._shoot_timer = 0.0
-        self.max_health = 100
+        self.max_health = 1000
         self.health = self.max_health
         self.is_dead = False
     
@@ -77,12 +77,28 @@ class Player(Base):
             self.set_direction("down")
             Logger().log_message(self.update, f"Moving down to y={self.rect.y + dy}")
 
+        # Apply horizontal movement with knockback collision
         self.rect.x += dx
-        if any(self.rect.colliderect(w.rect) for w in wall_group):
-            self.rect.x -= dx
-            Logger().log_message(self.update, f"Collision detected at x={self.rect.x}, reverting to x={self.rect.x - dx}")
+        colliding = [w for w in wall_group if self.rect.colliderect(w.rect)]
+        if colliding:
+            wall = colliding[0]
+            knockback_dist = 8  # Pixels to push player away
+            if dx > 0:  # Moving right, push left
+                self.rect.x = wall.rect.left - self.rect.width - knockback_dist
+                Logger().log_message(self.update, f"Right collision: pushed left to x={self.rect.x}")
+            elif dx < 0:  # Moving left, push right
+                self.rect.x = wall.rect.right + knockback_dist
+                Logger().log_message(self.update, f"Left collision: pushed right to x={self.rect.x}")
 
+        # Apply vertical movement with knockback collision
         self.rect.y += dy
-        if any(self.rect.colliderect(w.rect) for w in wall_group):
-            self.rect.y -= dy
-            Logger().log_message(self.update, f"Collision detected at y={self.rect.y}, reverting to y={self.rect.y - dy}")
+        colliding = [w for w in wall_group if self.rect.colliderect(w.rect)]
+        if colliding:
+            wall = colliding[0]
+            knockback_dist = 8  # Pixels to push player away
+            if dy > 0:  # Moving down, push up
+                self.rect.y = wall.rect.top - self.rect.height - knockback_dist
+                Logger().log_message(self.update, f"Down collision: pushed up to y={self.rect.y}")
+            elif dy < 0:  # Moving up, push down
+                self.rect.y = wall.rect.bottom + knockback_dist
+                Logger().log_message(self.update, f"Up collision: pushed down to y={self.rect.y}")

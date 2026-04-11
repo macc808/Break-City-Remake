@@ -22,12 +22,17 @@ if BASE_DIR not in sys.path:
 LEVEL_PATH = "assets/levels/level_01.txt"
 
 
+def get_level_path(level_number):
+    """Отримати шлях до файлу рівня за номером"""
+    return f"assets/levels/level_{level_number:02d}.txt"
+
+
 class PlayScene(Scene):
     def __init__(self, name="play", level=1):
         super().__init__(name)
         self.level = level
         self.engine = Engine()
-        self.player = Player(img_player, WIDTH - 70, HEIGHT - 50, 55, 35, 5, {
+        self.player = Player(img_player, 512, 320, 55, 35, 5, {
             "up1": K_UP, "down1": K_DOWN, "left1": K_LEFT, "right1": K_RIGHT,
             "up2": K_w, "down2": K_s, "left2": K_a, "right2": K_d,
         })
@@ -46,7 +51,14 @@ class PlayScene(Scene):
         self.is_paused = False
 
     def start(self):
-        load_level_from_txt(LEVEL_PATH)
+        # Отримуємо вибраний рівень з Game інстансу
+        if hasattr(Game, '_current_instance') and hasattr(Game._current_instance, 'selected_level'):
+            self.level = Game._current_instance.selected_level
+            level_path = get_level_path(self.level)
+        else:
+            level_path = LEVEL_PATH
+        
+        load_level_from_txt(level_path)
         self._reset_game_state()
     
     def _reset_game_state(self):
@@ -54,8 +66,8 @@ class PlayScene(Scene):
         # Скинути гравця
         self.player.health = self.player.max_health
         self.player.is_dead = False
-        self.player.rect.x = WIDTH - 70
-        self.player.rect.y = HEIGHT - 50
+        self.player.rect.x = 512  # Center road area (col 8)
+        self.player.rect.y = 320  # Row 5 (the main road)
         
         # Скинути ворогів
         self.enemies.clear()
@@ -246,35 +258,70 @@ class MenuScene(Scene):
     """Головне меню гри"""
     def __init__(self, name="menu"):
         super().__init__(name)
-        self.font_title = pygame.font.Font(None, 72)
         self.font_button = pygame.font.Font(None, 36)
         self.font_small = pygame.font.Font(None, 24)
         
-        # Кнопка START
-        self.start_button = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2 - 40, 200, 60)
+        # Завантажити фонове зображення
+        self.background = None
+        self._load_background()
+        
+        # Кнопка START GAME
+        self.start_button = pygame.Rect(WIDTH // 2 - 120, HEIGHT // 2 - 60, 240, 50)
         self.start_hovered = False
+        
+        # Кнопка SELECT LEVEL
+        self.level_button = pygame.Rect(WIDTH // 2 - 120, HEIGHT // 2 + 10, 240, 50)
+        self.level_hovered = False
+        
+        # Кнопка EXIT
+        self.exit_button = pygame.Rect(WIDTH // 2 - 120, HEIGHT // 2 + 80, 240, 50)
+        self.exit_hovered = False
+
+    def _load_background(self):
+        """Завантажити та масштабувати фонове зображення"""
+        try:
+            bg_image = pygame.image.load("assets/images/menu.jpg")
+            self.background = pygame.transform.scale(bg_image, (WIDTH, HEIGHT))
+        except Exception as e:
+            Logger().log_message(self._load_background, f"Menu background not found: {e}")
+            self.background = None
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            if self.start_hovered:
-                # Переходимо до гри
-                from core.game import Game as GameClass
-                if hasattr(GameClass, '_current_instance'):
+            from core.game import Game as GameClass
+            if hasattr(GameClass, '_current_instance'):
+                if self.start_hovered:
+                    # Переходимо до гри з рівнем 1
+                    GameClass._current_instance.selected_level = 1
                     GameClass._current_instance.scene_manager.set_scene("play")
+                elif self.level_hovered:
+                    # Переходимо до вибору рівня
+                    GameClass._current_instance.scene_manager.set_scene("level_select")
+                elif self.exit_hovered:
+                    # Вихід з гри
+                    pygame.quit()
+                    sys.exit(0)
 
     def update(self, dt):
         mouse_pos = pygame.mouse.get_pos()
         self.start_hovered = self.start_button.collidepoint(mouse_pos)
+        self.level_hovered = self.level_button.collidepoint(mouse_pos)
+        self.exit_hovered = self.exit_button.collidepoint(mouse_pos)
 
     def draw(self, screen):
-        screen.fill((20, 20, 30))
+        # Малювання фону
+        if self.background:
+            screen.blit(self.background, (0, 0))
+        else:
+            screen.fill((20, 20, 30))
         
-        # Заголовок
-        title = self.font_title.render("BATTLE CITY", True, (0, 255, 0))
-        title_rect = title.get_rect(center=(WIDTH // 2, HEIGHT // 4))
-        screen.blit(title, title_rect)
+        # Напівпрозорий темний шар над фоном для краще видимості інтерфейсу
+        overlay = pygame.Surface((WIDTH, HEIGHT))
+        overlay.set_alpha(120)
+        overlay.fill((0, 0, 0))
+        screen.blit(overlay, (0, 0))
         
-        # Кнопка START
+        # Кнопка START GAME
         button_color = (100, 200, 100) if self.start_hovered else (70, 150, 70)
         pygame.draw.rect(screen, button_color, self.start_button)
         pygame.draw.rect(screen, (255, 255, 255), self.start_button, 3)
@@ -283,9 +330,134 @@ class MenuScene(Scene):
         start_rect = start_text.get_rect(center=self.start_button.center)
         screen.blit(start_text, start_rect)
         
+        # Кнопка SELECT LEVEL
+        button_color = (100, 180, 200) if self.level_hovered else (70, 140, 170)
+        pygame.draw.rect(screen, button_color, self.level_button)
+        pygame.draw.rect(screen, (255, 255, 255), self.level_button, 3)
+        
+        level_text = self.font_button.render("SELECT LEVEL", True, (255, 255, 255))
+        level_rect = level_text.get_rect(center=self.level_button.center)
+        screen.blit(level_text, level_rect)
+        
+        # Кнопка EXIT
+        button_color = (200, 100, 100) if self.exit_hovered else (150, 70, 70)
+        pygame.draw.rect(screen, button_color, self.exit_button)
+        pygame.draw.rect(screen, (255, 255, 255), self.exit_button, 3)
+        
+        exit_text = self.font_button.render("EXIT", True, (255, 255, 255))
+        exit_rect = exit_text.get_rect(center=self.exit_button.center)
+        screen.blit(exit_text, exit_rect)
+        
         # Інструкція
         instructions = self.font_small.render("Стрілки або WASD - рух | SPACE - стріляти | PAUSE - пауза", True, (200, 200, 200))
         screen.blit(instructions, (20, HEIGHT - 40))
+
+
+class LevelSelectScene(Scene):
+    """Меню вибору рівнів"""
+    def __init__(self, name="level_select"):
+        super().__init__(name)
+        self.font_title = pygame.font.Font(None, 72)
+        self.font_button = pygame.font.Font(None, 36)
+        
+        # Завантажити фонове зображення
+        self.background = None
+        self._load_background()
+        
+        # Кількість рівнів
+        self.num_levels = 4
+        self.level_buttons = []
+        
+        # Створюємо кнопки для кожного рівня
+        button_width = 150
+        button_height = 60
+        start_x = WIDTH // 2 - (button_width * 2 + 30)
+        start_y = HEIGHT // 2 - 50
+        
+        for i in range(self.num_levels):
+            row = i // 2
+            col = i % 2
+            x = start_x + (col * (button_width + 30))
+            y = start_y + (row * (button_height + 30))
+            self.level_buttons.append({
+                'rect': pygame.Rect(x, y, button_width, button_height),
+                'level': i + 1,
+                'hovered': False
+            })
+        
+        # Кнопка BACK
+        self.back_button = pygame.Rect(WIDTH // 2 - 100, HEIGHT - 100, 200, 50)
+        self.back_hovered = False
+
+    def _load_background(self):
+        """Завантажити та масштабувати фонове зображення"""
+        try:
+            bg_image = pygame.image.load("assets/images/menu.jpg")
+            self.background = pygame.transform.scale(bg_image, (WIDTH, HEIGHT))
+        except Exception as e:
+            Logger().log_message(self._load_background, f"Level select background not found: {e}")
+            self.background = None
+
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            from core.game import Game as GameClass
+            if hasattr(GameClass, '_current_instance'):
+                # Перевіряємо натиск на кнопку рівня
+                for button in self.level_buttons:
+                    if button['rect'].collidepoint(event.pos):
+                        GameClass._current_instance.selected_level = button['level']
+                        GameClass._current_instance.scene_manager.set_scene("play")
+                        return
+                
+                # Перевіряємо натиск на кнопкуBack
+                if self.back_hovered:
+                    GameClass._current_instance.scene_manager.set_scene("menu")
+
+    def update(self, dt):
+        mouse_pos = pygame.mouse.get_pos()
+        self.back_hovered = self.back_button.collidepoint(mouse_pos)
+        
+        # Оновлюємо стан hover для всіх кнопок рівнів
+        for button in self.level_buttons:
+            button['hovered'] = button['rect'].collidepoint(mouse_pos)
+
+    def draw(self, screen):
+        # Малювання фону
+        if self.background:
+            screen.blit(self.background, (0, 0))
+        else:
+            screen.fill((20, 20, 30))
+        
+        # Напівпрозорий темний шар над фоном для краще видимості інтерфейсу
+        overlay = pygame.Surface((WIDTH, HEIGHT))
+        overlay.set_alpha(120)
+        overlay.fill((0, 0, 0))
+        screen.blit(overlay, (0, 0))
+        
+        # Заголовок
+        title = self.font_title.render("SELECT LEVEL", True, (0, 255, 0))
+        title_rect = title.get_rect(center=(WIDTH // 2, 50))
+        screen.blit(title, title_rect)
+        
+        # Малюємо кнопки рівнів
+        for button in self.level_buttons:
+            button_color = (100, 150, 200) if button['hovered'] else (70, 110, 170)
+            pygame.draw.rect(screen, button_color, button['rect'])
+            pygame.draw.rect(screen, (255, 255, 255), button['rect'], 3)
+            
+            level_text = self.font_button.render(f"LEVEL {button['level']}", True, (255, 255, 255))
+            level_rect = level_text.get_rect(center=button['rect'].center)
+            screen.blit(level_text, level_rect)
+        
+        # Кнопка BACK
+        button_color = (150, 100, 100) if self.back_hovered else (100, 70, 70)
+        pygame.draw.rect(screen, button_color, self.back_button)
+        pygame.draw.rect(screen, (255, 255, 255), self.back_button, 3)
+        
+        back_text = self.font_button.render("BACK", True, (255, 255, 255))
+        back_rect = back_text.get_rect(center=self.back_button.center)
+        screen.blit(back_text, back_rect)
+
 
 
 class WinScene(Scene):
@@ -296,9 +468,22 @@ class WinScene(Scene):
         self.font_button = pygame.font.Font(None, 36)
         self.font_medium = pygame.font.Font(None, 48)
         
+        # Завантажити фонове зображення
+        self.background = None
+        self._load_background()
+        
         # Кнопка CONTINUE
         self.continue_button = pygame.Rect(WIDTH // 2 - 120, HEIGHT // 2 + 50, 240, 60)
         self.continue_hovered = False
+
+    def _load_background(self):
+        """Завантажити та масштабувати фонове зображення"""
+        try:
+            bg_image = pygame.image.load("assets/images/win.jpg")
+            self.background = pygame.transform.scale(bg_image, (WIDTH, HEIGHT))
+        except Exception as e:
+            Logger().log_message(self._load_background, f"Failed to load win background: {e}")
+            self.background = None
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
@@ -313,7 +498,17 @@ class WinScene(Scene):
         self.continue_hovered = self.continue_button.collidepoint(mouse_pos)
 
     def draw(self, screen):
-        screen.fill((20, 30, 20))
+        # Малювання фону
+        if self.background:
+            screen.blit(self.background, (0, 0))
+        else:
+            screen.fill((20, 30, 20))
+        
+        # Напівпрозорий темний шар над фоном для краще видимості тексту
+        overlay = pygame.Surface((WIDTH, HEIGHT))
+        overlay.set_alpha(100)
+        overlay.fill((0, 0, 0))
+        screen.blit(overlay, (0, 0))
         
         # Заголовок
         title = self.font_title.render("YOU WIN!", True, (0, 255, 0))
@@ -343,6 +538,10 @@ class LoseScene(Scene):
         self.font_button = pygame.font.Font(None, 36)
         self.font_medium = pygame.font.Font(None, 48)
         
+        # Завантажити фонове зображення
+        self.background = None
+        self._load_background()
+        
         # Кнопка RETRY
         self.retry_button = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2 + 30, 200, 60)
         self.retry_hovered = False
@@ -350,6 +549,15 @@ class LoseScene(Scene):
         # Кнопка MENU
         self.menu_button = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2 + 110, 200, 60)
         self.menu_hovered = False
+
+    def _load_background(self):
+        """Завантажити та масштабувати фонове зображення"""
+        try:
+            bg_image = pygame.image.load("assets/images/gameover.jpg")
+            self.background = pygame.transform.scale(bg_image, (WIDTH, HEIGHT))
+        except Exception as e:
+            Logger().log_message(self._load_background, f"Failed to load gameover background: {e}")
+            self.background = None
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
@@ -368,7 +576,17 @@ class LoseScene(Scene):
         self.menu_hovered = self.menu_button.collidepoint(mouse_pos)
 
     def draw(self, screen):
-        screen.fill((30, 20, 20))
+        # Малювання фону
+        if self.background:
+            screen.blit(self.background, (0, 0))
+        else:
+            screen.fill((30, 20, 20))
+        
+        # Напівпрозорий темний шар над фоном для краще видимості тексту
+        overlay = pygame.Surface((WIDTH, HEIGHT))
+        overlay.set_alpha(100)
+        overlay.fill((0, 0, 0))
+        screen.blit(overlay, (0, 0))
         
         # Заголовок
         title = self.font_title.render("GAME OVER", True, (255, 0, 0))
@@ -408,11 +626,13 @@ class Game:
         pygame.display.set_caption("BreakCityRemake-CoreEngine")
         self.clock = pygame.time.Clock()
         self.fps = fps
+        self.selected_level = 1  # Вибраний рівень
 
         Game._current_instance = self  # Зберігаємо посилання на поточний екземпляр
         
         self.scene_manager = SceneManager()
         self.scene_manager.register_scene(MenuScene())
+        self.scene_manager.register_scene(LevelSelectScene())
         self.scene_manager.register_scene(PlayScene())
         self.scene_manager.register_scene(WinScene())
         self.scene_manager.register_scene(LoseScene())
