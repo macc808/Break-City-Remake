@@ -13,6 +13,7 @@ from map.level_loader import load_level_from_txt
 from map.wall import floor_group, wall_group
 from logger import Logger
 from ui.elements import HealthBar, PauseButton, PauseMenu
+from utils.sound_manager import SoundManager
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -60,6 +61,10 @@ class PlayScene(Scene):
         
         load_level_from_txt(level_path)
         self._reset_game_state()
+        
+        # Запускаємо фонову музику
+        sound_manager = SoundManager()
+        sound_manager.play_music('bg_music', loops=-1)  # -1 = циклічно
     
     def _reset_game_state(self):
         """Скинути стан гри до початкових значень"""
@@ -162,11 +167,17 @@ class PlayScene(Scene):
             bullet = self.player.shoot()
             if bullet:
                 self.player_bullets.append(bullet)
+                # Грати звук стрілу (зупиняє попередні звуки вистрілів)
+                sound_manager = SoundManager()
+                sound_manager.play_shoot_sound(volume=0.33)
 
         for enemy in self.enemies:
             enemy_shot = enemy.shoot(dt, self.player)
             if enemy_shot:
                 self.enemy_bullets.append(enemy_shot)
+                # Грати звук вистрілу врага (зупиняє попередні звуки вистрілів врагів)
+                sound_manager = SoundManager()
+                sound_manager.play_enemy_shoot_sound(volume=0.3)
 
         for bullet in self.player_bullets[:]:
             remove = bullet.update()
@@ -485,6 +496,12 @@ class WinScene(Scene):
             Logger().log_message(self._load_background, f"Failed to load win background: {e}")
             self.background = None
 
+    def start(self):
+        """Викликається при переході на цей екран"""
+        sound_manager = SoundManager()
+        # Очищуємо всі звуки і запускаємо звук перемоги
+        sound_manager.play_victory_sound(volume=0.7)
+
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             if self.continue_hovered:
@@ -559,6 +576,12 @@ class LoseScene(Scene):
             Logger().log_message(self._load_background, f"Failed to load gameover background: {e}")
             self.background = None
 
+    def start(self):
+        """Викликається при переході на цей екран"""
+        sound_manager = SoundManager()
+        # Очищуємо всі звуки і запускаємо звук поразки
+        sound_manager.play_defeat_sound(volume=0.7)
+
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             from core.game import Game as GameClass
@@ -622,6 +645,9 @@ class Game:
     
     def __init__(self, width=960, height=640, fps=60):
         pygame.init()
+        # Ініціалізуємо менеджер звуків
+        self.sound_manager = SoundManager()
+        
         self.screen = pygame.display.set_mode((width, height))
         pygame.display.set_caption("BreakCityRemake-CoreEngine")
         self.clock = pygame.time.Clock()
