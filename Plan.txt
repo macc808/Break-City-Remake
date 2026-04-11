@@ -26,8 +26,8 @@ BattleCityRemake/
 │   └── level_loader.py    # Завантаження рівнів з файлів/масивів
 │
 ├── ui/                    # Графічний інтерфейс (Рівень PRO)
-│   ├── elements.py        # Кнопки, мітки (Labels)
-│   └── observer.py        # Реалізація патерна Observer
+│   └── elements.py        # Кнопки, мітки (Labels)
+│    
 │
 └── utils/                 # Допоміжні функції
     └── math_helpers.py    # Розрахунки для AI, відстані тощо
